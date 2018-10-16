@@ -30,3 +30,23 @@
     transform: rotate(360deg);
   }
 }
+
+.Bubble {
+  position: absolute;
+  align-self: center;
+  background: #f00;
+  width: 200px;
+  height: 200px;
+  margin: auto;
+  border-radius: 50%;
+}
+
+.Box {
+  position: relative;
+  display: flex;
+  background: rebeccapurple;
+  width: 400px;
+  height: 400px;
+  margin: auto;
+  overflow: hidden;
+}

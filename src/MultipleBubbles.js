@@ -12,7 +12,9 @@ class Style {
 }
 
 class Bubble extends React.Component {
-
+    onMouseUp(){
+        clearTimeout(this.t);
+    }
 
   render() {
       var r = this.props.radius;
@@ -25,6 +27,7 @@ class Bubble extends React.Component {
               className="Bubble"
               style={divStyle}
   //            onMouseDown={() => this.onMouseDown()}
+              onMouseUp={() => this.onMouseUp()}
           >
           </div>
       );
@@ -35,20 +38,20 @@ class Box extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            history: [{
+                radius: 0,
+                x: null,
+                y: null
+            }],
             radius: 0,
             x: 0,
             y: 0,
-            v: 0,
             clicked: false,
+            bubbleNumber: 0,
         };
         this.t = undefined;
-        this.u = undefined;
 
     }
-
-
-
-
 
     shrink(i){
         this.setState({
@@ -56,79 +59,77 @@ class Box extends React.Component {
         });
     }
 
-    shrinkWrap(){
-        this.shrink(1);
-        this.t = setTimeout(this.shrinkWrap.bind(this), 10);
-    }
-
-    fall(i){
-        this.setState({
-            y: this.state.y + i,
-            v: this.state.v + .01,
-        });
-    }
-
-    fallWrap(){
-        this.fall(this.state.v);
-        this.u = setTimeout(this.fallWrap.bind(this), 1);
-
-        if(this.state.y + (this.state.radius/2) >= 400){
-            this.setState({
-                v: -.9 * this.state.v,
-            }, function(){
-                if(this.state.v > -.05){
-                    clearTimeout(this.u);
-                }
-            });
-        }
-
+    repeat(){
+        this.shrink(2);
+        this.t = setTimeout(this.repeat.bind(this), 20);
     }
 
     onMouseUp(){
+        console.log("up");
+        console.log(this.state);
+
+        const history = this.state.history.slice(0, this.state.bubbleNumber + 1);
         clearTimeout(this.t);
         this.setState({
-            v: .01,
-        }, this.fallWrap);
+            history: history.concat([{
+                radius: this.state.radius,
+                x: this.state.x,
+                y: this.state.y
+            }]),
+            clicked: false,
+            radius: 0,
+            bubbleNumber: history.length,
+        });
     }
-
     onMouseDown(e){
-        clearTimeout(this.u);
+        console.log("down");
+
+        console.log(this.state);
         this.setState({
             clicked: true,
-            radius: 0,
             x: e.nativeEvent.offsetX,
             y: e.nativeEvent.offsetY,
-        }, this.shrinkWrap);
-
+        });
+        this.repeat();
     }
 
 
   render() {
-        let bubbles = [];
+       let bubbles = [];
+       for (let i = 1; i <= this.state.bubbleNumber; i++){
+           bubbles.push(
+           <Bubble
+               radius={this.state.history[i].radius}
+               x={this.state.history[i].x}
+               y={this.state.history[i].y}
+               key={i}
+           >
+           </Bubble>
+           )
+       }
 
-        return (
-          <div className="Box"
-                onMouseDown={this.onMouseDown.bind(this)}
-                onMouseUp={this.onMouseUp.bind(this)}
-          >
-              {this.state.clicked ?
-                  <Bubble
-                      radius={this.state.radius}
-                      x={this.state.x}
-                      y={this.state.y}
-                  >
-                  </Bubble> :
-                  null
-              }
-              <div>
-                  {this.state.x}, {this.state.y}
-              </div>
-          </div>
-        );
+      return (
+      <div className="Box"
+            onMouseDown={this.onMouseDown.bind(this)}
+            onMouseUp={this.onMouseUp.bind(this)}
+      >
+          {bubbles}
+          {this.state.clicked ?
+              <Bubble
+                  radius={this.state.radius}
+                  x={this.state.x}
+                  y={this.state.y}
+              >
+              </Bubble> :
+              null
+          }
+      </div>
+    );
   }
 }
 
 class Controller extends React.Component {
+
     render() {
         return (
             <div className="App">
