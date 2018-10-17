@@ -41,10 +41,45 @@ class Box extends React.Component {
         this.u = undefined;
 
     }
-
-
+    grow(i){
+        this.setState({
+            diameter: this.state.diameter + i,
+        });
+    }
 
     growWrap(){
+        this.grow(1);
+        this.t = setTimeout(this.growWrap.bind(this), 10);
+    }
+
+    fall(){
+        this.setState({
+            y: this.state.y + this.state.vy,
+            vy: this.state.vy + .01,
+        });
+    }
+
+    fallWrap(){
+        this.fall();
+        this.u = setTimeout(this.fallWrap.bind(this), 1);
+
+
+
+        if(this.state.y >= 400 - (this.state.diameter/2)){
+            this.setState({
+                y: 400 - (this.state.diameter/2),
+                vy: -.9 * this.state.vy,
+            }, function(){
+                console.log("Should be negative: " + this.state.vy);
+                if(Math.abs(this.state.vy) < .2){
+                    clearTimeout(this.u);
+                }
+            });
+        }
+
+    }
+
+    growWrap2(){
         const updateDiameter = ({diameter}) => ({diameter: diameter + 1});
         const history = this.state.history.slice(0, -1);
         const latest = this.state.history.slice(this.state.history.length - 1);
@@ -58,28 +93,35 @@ class Box extends React.Component {
                     vy: 0
                 }]),
             }, function() {
-            this.u = setTimeout(this.growWrap.bind(this), 1);
+            this.u = setTimeout(this.growWrap2.bind(this), 1);
         });
     }
 
-    fallWrap(){
-        //this.fall(this.state);
-        //console.log(this.state.history);
+    fall2(i){
+        this.setState({
+            y: this.state.y + i,
+            vy: this.state.vy + .01,
+        });
+    }
+
+    fallWrap2(){
+        //this.fall2(this.state);
+        console.log(this.state.history);
             const updateBubble = ({diameter, x, y, vy}) => ({
                 diameter: diameter,
                 x: x,
-                y: y + vy,
-                vy: !(y >= (400 - (diameter/2)) && vy >= 0)?  vy + 0.1 : (vy < .2)? 0 : vy * -.9
+                y: (y > (400 - (diameter/2)))? (400 - (diameter/2)) : y + vy,
+                vy: (y > (400 - (diameter/2)))? vy * -.9 : vy + 0.1
             });
             this.setState(state => ({history: state.history.map(updateBubble)}), function() {
-                this.t = setTimeout(this.fallWrap.bind(this), 1);
+                this.t = setTimeout(this.fallWrap2.bind(this), 1);
             });
 
 
     }
 
     onMouseUp(){
-        //console.log(this.state.history);
+        console.log(this.state.history);
         const history = this.state.history.slice(0, -1);
         const latest = this.state.history.slice(this.state.history.length - 1);
 
@@ -95,7 +137,7 @@ class Box extends React.Component {
         }, function(){
             //this.fallWrap();
             clearTimeout(this.t);
-            this.fallWrap();
+            this.fallWrap2();
         });
     }
 
@@ -114,7 +156,7 @@ class Box extends React.Component {
             diameter: 0,
             x: e.nativeEvent.offsetX,
             y: e.nativeEvent.offsetY,
-        }, this.growWrap);
+        }, this.growWrap2);
 
     }
 

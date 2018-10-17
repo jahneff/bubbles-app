@@ -34,7 +34,7 @@
 .Bubble {
   position: absolute;
   align-self: center;
-  background: #f00;
+  background: cadetblue;
   width: 200px;
   height: 200px;
   margin: auto;
@@ -44,7 +44,7 @@
 .Box {
   position: relative;
   display: flex;
-  background: rebeccapurple;
+  background: silver;
   width: 400px;
   height: 400px;
   margin: auto;
